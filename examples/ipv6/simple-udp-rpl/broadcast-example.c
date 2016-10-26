@@ -1,5 +1,4 @@
-/*
- * Copyright (c) 2011, Swedish Institute of Computer Science.
+/* Copyright (c) 2011, Swedish Institute of Computer Science.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,16 +35,17 @@
 #include "sys/etimer.h"
 #include "net/ip/uip.h"
 #include "net/ipv6/uip-ds6.h"
+#include "cc1120.h"
 
 #include "simple-udp.h"
 
-
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define UDP_PORT 1234
 
-#define SEND_INTERVAL		(20 * CLOCK_SECOND)
+#define SEND_INTERVAL		(4 * CLOCK_SECOND)
 #define SEND_TIME		(random_rand() % (SEND_INTERVAL))
 
 static struct simple_udp_connection broadcast_connection;
@@ -63,14 +63,27 @@ receiver(struct simple_udp_connection *c,
          const uint8_t *data,
          uint16_t datalen)
 {
+  int16_t rssi1 = (int16_t)(cc1120_spi_single_read(0x2F71));
+  uint16_t rssi0 = (uint16_t)(cc1120_spi_single_read(0x2F72));
+  int16_t rssi = rssi1<<4;
+  printf("RSSI1: %d, RSSI0: %d, RSSI: %d\n", rssi1, rssi0, rssi);
   printf("Data received on port %d from port %d with length %d\n",
          receiver_port, sender_port, datalen);
+
+  printf("Data (%03dB): %s\n", datalen, (char*)data);
+//  int i;
+//  for(i=0; i<datalen; i++)
+//  {
+//  	printf("Data %c\n", (char)*(data+i));
+//  }
 }
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(broadcast_example_process, ev, data)
 {
   static struct etimer periodic_timer;
   static struct etimer send_timer;
+  
+  char* data_to_send = "Test";  
   uip_ipaddr_t addr;
 
   PROCESS_BEGIN();
@@ -88,7 +101,7 @@ PROCESS_THREAD(broadcast_example_process, ev, data)
     PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&send_timer));
     printf("Sending broadcast\n");
     uip_create_linklocal_allnodes_mcast(&addr);
-    simple_udp_sendto(&broadcast_connection, "Test", 4, &addr);
+    simple_udp_sendto(&broadcast_connection, data_to_send, 4, &addr);
   }
 
   PROCESS_END();
