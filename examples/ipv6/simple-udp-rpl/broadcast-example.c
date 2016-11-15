@@ -71,11 +71,6 @@ receiver(struct simple_udp_connection *c,
          receiver_port, sender_port, datalen);
 
   printf("Data (%03dB): %s\n", datalen, (char*)data);
-//  int i;
-//  for(i=0; i<datalen; i++)
-//  {
-//  	printf("Data %c\n", (char)*(data+i));
-//  }
 }
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(broadcast_example_process, ev, data)

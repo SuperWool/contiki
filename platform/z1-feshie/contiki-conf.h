@@ -32,6 +32,11 @@
 #define CONTIKI_CONF_H
 
 
+#ifdef PROJECT_CONF_H
+#include PROJECT_CONF_H
+#endif /* PROJECT_CONF_H */
+
+
 #include "platform-conf.h"
 
 
@@ -208,11 +213,6 @@
 #define UIP_CONF_LOGGING         0
 
 #define UIP_CONF_TCP_SPLIT       0
-
-
-#ifdef PROJECT_CONF_H
-#include PROJECT_CONF_H
-#endif /* PROJECT_CONF_H */
 
 
 
